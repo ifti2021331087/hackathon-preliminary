@@ -1,5 +1,5 @@
 QueueStorm Investigator API
-This is a high-performance, AI-powered support ticket investigator built with Next.js and Gemini 3.5 Flash. It provides automated, safe, and evidence-grounded analysis for support tickets, strictly adhering to fintech security and compliance standards.
+This is an AI-powered support ticket investigator designed to provide fast, evidence-based, and safe analysis of digital finance customer complaints. It correlates customer claims with transaction histories to ensure accurate routing and compliant, helpful support.
 
 🚀 Live Endpoint
 Base URL: https://hackathon-preliminary-7rzo.vercel.app
@@ -9,53 +9,88 @@ Health Check: [GET] /health
 Ticket Analysis: [POST] /analyze-ticket
 
 🛠 Features
-Evidence-Based: Correlates customer complaints with transaction history to verify claims.
+Evidence-Based Reasoning: Systematically correlates customer complaints with transaction logs to determine claim validity.
 
-Safety-First: Automated safety guardrails prevent credential phishing and unauthorized financial commitments (e.g., refunds).
+Safety-First Design: Implements strict guardrails to prevent phishing and unauthorized financial commitments.
 
-Compliance Ready: Returns structured JSON with confidence scores, severity levels, and specific reason codes for easy auditing.
+Structured Taxonomy: Maps cases to specific departments (dispute_resolution, fraud_risk, etc.) for efficient routing.
 
-Pure Implementation: Built using raw fetch—no external AI SDKs, ensuring maximum performance and minimal dependency overhead.
+Lean Implementation: Built using native fetch for maximum performance, avoiding heavy external AI SDKs.
 
 📋 API Documentation
 1. Health Check
 Checks if the API is operational.
 
-Endpoint: /health
-
 Method: GET
+
+Endpoint: /health
 
 Response: {"status": "ok"}
 
 2. Analyze Ticket
 Analyzes a support ticket and returns a structured verdict.
 
-Endpoint: /analyze-ticket
-
 Method: POST
+
+Endpoint: /analyze-ticket
 
 Headers: Content-Type: application/json
 
-Body Example:
+Body: { "ticket_id": string, "complaint": string, "transaction_history": array }
 
+🔐 AI Approach & Safety Logic
+Model: We utilize Gemini 3.5 Flash for its superior speed and instruction-following capabilities.
+
+Evidence Analysis: The model acts as an investigator by comparing the complaint text against the transaction_history. It explicitly identifies the relevant_transaction_id and provides an evidence_verdict.
+
+Safety Guardrails: * No Credentials: The system is pre-prompted to never request or acknowledge PINs, OTPs, or passwords.
+
+No Unauthorized Refunds: Responses are restricted to "any eligible amount will be returned through official channels," preventing unauthorized financial promises.
+
+Prompt Injection: The system is hardened against adversarial input that attempts to override these safety protocols.
+
+⚠️ Known Limitations
+Data Dependence: Accuracy is limited by the quality and completeness of the provided transaction history.
+
+Ambiguity: Cases with multiple plausible transaction matches are flagged for human review to prevent incorrect dispute initiation.
+
+🚀 Deployment & Local Setup
+Local Development
+Clone the repository.
+
+Install dependencies: npm install.
+
+Create a .env.local file with your GOOGLE_API_KEY.
+
+Run the development server: npm run dev.
+
+Deployment to Vercel
+Fork this repository.
+
+Connect to Vercel and set the Root Directory to ./.
+
+Add GOOGLE_API_KEY to Vercel Environment Variables.
+
+Deploy.
+
+Sample Request
 JSON
 {
-  "ticket_id": "TKT-001",
+  "ticket_id": "TEST-001",
   "complaint": "I sent 5000 taka to a wrong number.",
-  "transaction_history": [
-    {
-      "transaction_id": "TXN-9101",
-      "timestamp": "2026-04-14T14:08:22Z",
-      "type": "transfer",
-      "amount": 5000,
-      "counterparty": "+8801719876543",
-      "status": "completed"
-    }
-  ]
+  "transaction_history": []
 }
-🔐 Compliance & Safety
-No SDKs: Built with raw fetch for a minimal, lightweight footprint.
-
-Financial Guardrails: Automatically blocks any mention of PIN/OTP/Password in generated customer replies.
-
-Human-in-the-Loop: Automatically flags human_review_required: true for high-value transactions, phishing attempts, and ambiguous evidence.
+Sample Response
+JSON
+{
+  "ticket_id": "TEST-001",
+  "relevant_transaction_id": null,
+  "evidence_verdict": "insufficient_data",
+  "case_type": "wrong_transfer",
+  "department": "dispute_resolution",
+  "severity": "high",
+  "agent_summary": "Customer claims to have sent 5000 BDT...",
+  "recommended_next_action": "Request the customer to provide...",
+  "customer_reply": "We have received your request regarding...",
+  "human_review_required": true
+}
