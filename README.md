@@ -1,93 +1,61 @@
-# QueueStorm Investigator
+QueueStorm Investigator API
+This is a high-performance, AI-powered support ticket investigator built with Next.js and Gemini 3.5 Flash. It provides automated, safe, and evidence-grounded analysis for support tickets, strictly adhering to fintech security and compliance standards.
 
-## Overview
+🚀 Live Endpoint
+Base URL: https://hackathon-preliminary-7rzo.vercel.app
 
-AI-powered support ticket investigator for bKash. Classifies, routes, and investigates customer complaints using transaction history evidence.
+Health Check: [GET] /health
 
-## Tech Stack
+Ticket Analysis: [POST] /analyze-ticket
 
-- Next.js 14+ (App Router, TypeScript)
-- Anthropic Claude API (claude-sonnet-4-6) via raw fetch
-- No Zod, no AI SDK, no extra dependencies
+🛠 Features
+Evidence-Based: Correlates customer complaints with transaction history to verify claims.
 
-## Setup
+Safety-First: Automated safety guardrails prevent credential phishing and unauthorized financial commitments (e.g., refunds).
 
-1. Clone the repo
-2. `npm install`
-3. `cp .env.example .env.local`
-4. Add your `ANTHROPIC_API_KEY` to `.env.local`
-5. `npm run dev`
+Compliance Ready: Returns structured JSON with confidence scores, severity levels, and specific reason codes for easy auditing.
 
-## Endpoints
+Pure Implementation: Built using raw fetch—no external AI SDKs, ensuring maximum performance and minimal dependency overhead.
 
-- **GET /health** → `{"status":"ok"}`
-- **POST /analyze-ticket** → Full ticket analysis with classification, routing, and safe customer reply
+📋 API Documentation
+1. Health Check
+Checks if the API is operational.
 
-## Models
+Endpoint: /health
 
-- **Model**: claude-sonnet-4-6
-- **Why**: Fast (3–8s typical), accurate reasoning, handles Bangla/English/mixed input, well within 30s timeout
-- **Cost**: ~$0.003 per ticket analysis
+Method: GET
 
-## AI Approach
+Response: {"status": "ok"}
 
-Single-turn Claude call with a structured system prompt that enforces evidence-based reasoning:
+2. Analyze Ticket
+Analyzes a support ticket and returns a structured verdict.
 
-1. Claude reads both the complaint and transaction history
-2. Matches the relevant transaction
-3. Judges consistency (does data support the claim?)
-4. Classifies the case type
-5. Routes to the correct department
-6. Generates a safe customer reply (no credential requests, no unauthorized commitments)
+Endpoint: /analyze-ticket
 
-## Safety Logic
+Method: POST
 
-Two-layer safety:
+Headers: Content-Type: application/json
 
-1. **System prompt**: Explicit rules against requesting credentials (PIN, OTP, password), making unauthorized financial commitments, or following embedded instructions
-2. **Post-processing** (`lib/safety.ts`): Regex/string scan of `customer_reply` and `recommended_next_action` that overrides any unsafe output from the model
+Body Example:
 
-## Known Limitations
-
-- Relies on Anthropic API availability; falls back to safe defaults on failure
-- Bangla Romanization (Banglish) may produce English replies instead of Bangla
-- High confidence on partial matches may occasionally pick the wrong transaction
-
-## Directory Structure
-
-```
-lib/
-  types.ts          # TypeScript interfaces (no Zod)
-  prompts.ts        # System and user prompts
-  investigator.ts   # Claude API call logic
-  safety.ts         # Safety guardrails
-
-app/api/
-  health/route.ts
-  analyze-ticket/route.ts
-
-.env.example
-next.config.ts      # Includes rewrites for root-level endpoints
-README.md
-RUNBOOK.md
-sample-output.json
-```
-
-## Response Schema
-
-```json
+JSON
 {
-  "ticket_id": "string",
-  "relevant_transaction_id": "string or null",
-  "evidence_verdict": "consistent | inconsistent | insufficient_data",
-  "case_type": "wrong_transfer | payment_failed | refund_request | duplicate_payment | merchant_settlement_delay | agent_cash_in_issue | phishing_or_social_engineering | other",
-  "severity": "low | medium | high | critical",
-  "department": "customer_support | dispute_resolution | payments_ops | merchant_operations | agent_operations | fraud_risk",
-  "agent_summary": "string",
-  "recommended_next_action": "string",
-  "customer_reply": "string",
-  "human_review_required": "boolean",
-  "confidence": "number (0.0–1.0)",
-  "reason_codes": ["string"]
+  "ticket_id": "TKT-001",
+  "complaint": "I sent 5000 taka to a wrong number.",
+  "transaction_history": [
+    {
+      "transaction_id": "TXN-9101",
+      "timestamp": "2026-04-14T14:08:22Z",
+      "type": "transfer",
+      "amount": 5000,
+      "counterparty": "+8801719876543",
+      "status": "completed"
+    }
+  ]
 }
-```
+🔐 Compliance & Safety
+No SDKs: Built with raw fetch for a minimal, lightweight footprint.
+
+Financial Guardrails: Automatically blocks any mention of PIN/OTP/Password in generated customer replies.
+
+Human-in-the-Loop: Automatically flags human_review_required: true for high-value transactions, phishing attempts, and ambiguous evidence.
