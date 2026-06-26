@@ -1,0 +1,20 @@
+{
+  "ticket_id": "TKT-001",
+  "relevant_transaction_id": "TXN-9101",
+  "evidence_verdict": "consistent",
+  "case_type": "wrong_transfer",
+  "severity": "high",
+  "department": "dispute_resolution",
+  "agent_summary": "Customer reports sending 5000 BDT to wrong recipient (TXN-9101, 2:08 PM today). Transaction completed to +8801719876543. Recipient not responding. Likely transfer to incorrect number.",
+  "recommended_next_action": "Initiate dispute review. Contact recipient at counterparty number to attempt recovery. If uncooperative, escalate to transaction reversal queue.",
+  "customer_reply": "Thank you for reporting this issue. We understand you sent 5000 BDT to an incorrect number. Our dispute team will investigate this transaction and work to recover your funds. Any eligible amount will be returned through official channels. We will update you within 24-48 hours.",
+  "human_review_required": true,
+  "confidence": 0.92,
+  "reason_codes": [
+    "wrong_transfer",
+    "transaction_match",
+    "high_value",
+    "completed_status",
+    "unresponsive_counterparty"
+  ]
+}
